@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:12.3-alpine
+    restart: "no"
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=postgres
+      - POSTGRES_PORT=5432
+
+  app:
+    command: python /app/test.py --host 0.0.0.0 --port 8000 --run-background-task True
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - migrations
+    volumes:
+      - .:/app
+
+
+  migrations:
+    command: python /app/test.py --migrations True
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
